@@ -27,3 +27,10 @@ build/
 # 6️⃣ 临时文件
 .DS_Store
 *.swp
+
+# 7.测试结果数据
+report/
+
+# 8. 加密解密使用的mock数据
+common/private_key.keystore
+common/public_key.keystore

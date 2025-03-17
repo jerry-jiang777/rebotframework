@@ -5,6 +5,7 @@
 # @Time     : 2023/7/25 20:04
 # @Copyright: 北京码同学
 from api.base_api import BaseSellerApi
+from common.encry_decry import md5
 
 
 class SellerLoginApi(BaseSellerApi):
@@ -16,7 +17,7 @@ class SellerLoginApi(BaseSellerApi):
         self.method = 'get'
         self.params = {
             "username":username,
-            "password":password,
+            "password":md5(password),
             "captcha":'1512',
             "uuid":"asdasdasdasdasdd"
         }

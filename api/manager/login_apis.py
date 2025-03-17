@@ -1,4 +1,5 @@
 from api.base_api import BaseManagerApi
+from common.encry_decry import md5
 
 
 class ManagerLoginApi(BaseManagerApi):
@@ -10,7 +11,7 @@ class ManagerLoginApi(BaseManagerApi):
         self.method = 'get'
         self.params = {
             "username":username,
-            "password":password,
+            "password":md5(password),
             "captcha":'1512',
             "uuid":"asdasdasdasdasdd"
         }

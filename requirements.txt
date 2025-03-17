@@ -18,7 +18,7 @@ pytest-assume==2.4.3
 pytest-repeat==0.9.1
 pytest-rerunfailures==11.1.2
 redis==4.6.0
-requests~=2.32.0
+requests~=2.31.0
 six==1.16.0
 tomli==2.0.1
 urllib3==2.2.2
@@ -26,3 +26,4 @@ urllib3==2.2.2
 openpyxl~=3.1.5
 yaml~=0.2.5
 pyyaml~=6.0.2
+pycryptodome~=3.22.0

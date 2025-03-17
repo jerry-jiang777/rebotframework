@@ -21,23 +21,41 @@ from common.logger import GetLogger
 from common.redis_util import RedisUtil
 
 
-def pytest_collection_modifyitems(items: List["Item"]):
+def pytest_collection_modifyitems(config:"Config",items:List["Item"]):
     # items对象是pytest收集到的所有用例对象
+    # 获取pytest.ini中的addopts值
+    try:
+        addopts = config.getini('addopts')
+        if "--dist=each" in addopts:
+            # 此时说明你要用的是多进程并发，我要得到当前的worker_id
+            worker_id = config.workerinput.get('workerid')
+        else:
+            worker_id = None
+    except:
+        worker_id = None
     for item in items:
         # item就代表了一条用例
-        item._nodeid = item._nodeid.encode('utf-8').decode("unicode-escape")
+        if worker_id:
+            item.originalname = item.originalname.encode('utf-8').decode("unicode-escape")+worker_id
+            item._nodeid = item._nodeid.encode('utf-8').decode("unicode-escape")+worker_id
+        else:
+            item._nodeid = item._nodeid.encode('utf-8').decode("unicode-escape")
 
 
 @pytest.fixture(scope='session', autouse=True)
-def aalogger_init():
-    GetLogger.get_logger().info('日志初始化成功')
+def aalogger_init(worker_id):
+    GetLogger.get_logger(worker_id).info('日志初始化成功')
 
 
 @pytest.fixture(scope='session', autouse=True)
-def buyer_login():
+def buyer_login(worker_id): # 注意worker_id是pytest-xdist提供的
     # 实例化买家登录的接口类对象，完成调用，提取token，赋值给BaseBuyerApi.buyer_token
-    resp = BuyerLoginApi(username='cici', password='d92652d4522c9bc175f9ef5bbc862a9f').send()
+    # 没有使用多进程并发时，worker_id的值是master
+    if worker_id == "gw0" or worker_id == 'master':
+        resp = BuyerLoginApi(username='cici', password='cici321654').send()
     # print(f"买家登录初始化: {resp.text}")
+    elif worker_id == 'gw1':
+        resp = BuyerLoginApi(username='jerry', password='jerry321654').send()
     BaseBuyerApi.buyer_token = resp.json()['access_token']
     BaseBuyerApi.uid = resp.json()['uid']
 
@@ -45,14 +63,14 @@ def buyer_login():
 @pytest.fixture(scope="session", autouse=True)
 def manager_login():
     # 实例化管理员登录的接口类对象，完成调用，提取token，赋值给BaseManagerApi.manager_token
-    resp = ManagerLoginApi(username='admin', password='78b157cf49d312ecf69d1335e8b589ef').send()
+    resp = ManagerLoginApi(username='admin', password='mtx_15908').send()
     BaseManagerApi.manager_token = resp.json()['access_token']
 
 
 @pytest.fixture(scope='session', autouse=True)
 def seller_login():
     # 实例化卖家登录的接口类对象，完成调用，提取token，赋值给BaseSellerApi.seller_token
-    resp = SellerLoginApi(username='shamoseller', password='fafd8b5f5d11048e8078b66ab075acb3').send()
+    resp = SellerLoginApi(username='shamoseller', password='mtxseller').send()
     BaseSellerApi.seller_token = resp.json()['access_token']
 
 

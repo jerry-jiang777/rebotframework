@@ -16,7 +16,7 @@ class GetLogger:
     logger = None
 
     @classmethod
-    def get_logger(cls):
+    def get_logger(cls, worker_id="master"):
         if cls.logger is None:
             # 创建日志名称apiautotest,这个值是自定义的
             cls.logger = logging.getLogger('apiautotest')
@@ -29,7 +29,7 @@ class GetLogger:
 
             # 创建日志处理器，把日志存储到文件,会存多个，以时间去分割不同的日志文件
             tf = logging.handlers.TimedRotatingFileHandler(
-                filename=f'{project_path}/logs/requests.log',
+                filename=f'{project_path}/logs/requests_{worker_id}.log',
                 when='H',# 间隔多长时间生成新的日志文件的时间单位
                 interval=1,# 间隔时间的数量
                 backupCount=3,# 除了原始最新的日志外，保留3个备份日志文件
