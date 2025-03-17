@@ -1,0 +1,1 @@
+{"uuid": "f7a5ff67-ab79-438d-af92-499b36182778", "children": ["07deb316-617d-40ae-871e-19f26b0b6a02"], "befores": [{"name": "redis_init", "status": "passed", "start": 1742191119864, "stop": 1742191119864}], "afters": [{"name": "redis_init::0", "status": "passed", "start": 1742191155072, "stop": 1742191155072}], "start": 1742191119864, "stop": 1742191155072}
