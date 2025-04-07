@@ -37,6 +37,10 @@ def load_yaml_file(filepath):
         content = yaml.load(f,Loader=yaml.FullLoader)
         return content
 
+def write_yaml(filepath: object, content: object) -> None:
+    with open(file=filepath, mode='w', encoding='utf-8') as f:
+        yaml.dump(content, f, Dumper=yaml.Dumper)
+
 if __name__ == '__main__':
     print(read_excel('../data/mtxshop_data.xlsx', '立即购买测试数据'))
     print(load_yaml_file(mtxshop_data_yaml))

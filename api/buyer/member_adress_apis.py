@@ -15,8 +15,8 @@ class AddAddressApi(BaseBuyerApi):
         self.data = {
             "def_addr": 0,
             'ship_address_name': '这是地址别名',
-            "name": "cici",
-            "mobile": "13391327907",
-            "region": 2830,
+            "name": "沙陌20230530",
+            "mobile": "18729399607",
+            "region": 2799,
             "addr": "这是详细地址"
         }

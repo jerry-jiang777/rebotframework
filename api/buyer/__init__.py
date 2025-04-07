@@ -4,3 +4,5 @@
 # @author   : 沙陌 Matongxue_2
 # @Time     : 2023/7/20 21:07
 # @Copyright: 北京码同学
+def member_address_apis():
+    return None

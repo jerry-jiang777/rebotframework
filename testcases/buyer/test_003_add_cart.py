@@ -11,7 +11,9 @@ from api.buyer.cart_apis import AddCartApi
 from common.file_load import load_yaml_file
 from paths_manager import mtxshop_data_yaml
 
-
+@allure.epic('买家接口测试')
+@allure.feature('交易接口模块')
+@allure.story('添加购物车接口测试')
 class TestAddCartApi:
 
     # test_data = [
@@ -25,6 +27,7 @@ class TestAddCartApi:
 
     @pytest.mark.parametrize('casename,sku_id,num,expect_status,expect_body',test_data)
     def test_add_cart(self,casename,sku_id,num,expect_status,expect_body):
+        allure.dynamic.title(casename)
         # 实例化一个立即购买类的对象
         add_cart_api = AddCartApi(sku_id=sku_id)
         # 由于BuyNowApi的init中并没有传递num，因此我们按照下面的方式把测试数据num传给该接口对象的参数

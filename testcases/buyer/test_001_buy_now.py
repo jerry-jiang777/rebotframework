@@ -11,7 +11,9 @@ from api.buyer.cart_apis import BuyNowApi
 from common.file_load import read_excel
 from paths_manager import mtxshop_data_xlsx
 
-
+@allure.epic('买家接口测试')
+@allure.feature('交易-购物车接口模块')
+@allure.story('立即购买接口测试')
 class TestBuyNowApi:
 
     # test_data = [
@@ -27,6 +29,7 @@ class TestBuyNowApi:
     @pytest.mark.parametrize('casename,sku_id,num,expect_status,expect_body',test_data)
     def test_buy_now(self,casename,sku_id,num,expect_status,expect_body):
         # 实例化一个立即购买类的对象
+        allure.dynamic.title(casename)
         buy_now_api = BuyNowApi(sku_id=sku_id)
         # 由于BuyNowApi的init中并没有传递num，因此我们按照下面的方式把测试数据num传给该接口对象的参数
         buy_now_api.data['num'] = num

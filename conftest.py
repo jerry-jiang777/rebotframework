@@ -17,11 +17,13 @@ from api.manager.login_apis import ManagerLoginApi
 from api.seller.goods_apis import AddGoodsApi, GoodsUnderApi, GoodsRecycleApi, GoodsDeleteApi
 from api.seller.login_apis import SellerLoginApi
 from common.db_util import DBUtil
+from common.file_load import load_yaml_file
 from common.logger import GetLogger
 from common.redis_util import RedisUtil
+from paths_manager import mtxshop_data_yaml, common_yaml_path, redis_yaml_path, db_yaml_path
 
 
-def pytest_collection_modifyitems(config:"Config",items:List["Item"]):
+def pytest_collection_modifyitems(config: "Config", items: List["Item"]):
     # items对象是pytest收集到的所有用例对象
     # 获取pytest.ini中的addopts值
     try:
@@ -36,8 +38,8 @@ def pytest_collection_modifyitems(config:"Config",items:List["Item"]):
     for item in items:
         # item就代表了一条用例
         if worker_id:
-            item.originalname = item.originalname.encode('utf-8').decode("unicode-escape")+worker_id
-            item._nodeid = item._nodeid.encode('utf-8').decode("unicode-escape")+worker_id
+            item.originalname = item.originalname.encode('utf-8').decode("unicode-escape") + worker_id
+            item._nodeid = item._nodeid.encode('utf-8').decode("unicode-escape") + worker_id
         else:
             item._nodeid = item._nodeid.encode('utf-8').decode("unicode-escape")
 
@@ -48,14 +50,28 @@ def aalogger_init(worker_id):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def buyer_login(worker_id): # 注意worker_id是pytest-xdist提供的
+def buyer_login(worker_id):  # 注意worker_id是pytest-xdist提供的
     # 实例化买家登录的接口类对象，完成调用，提取token，赋值给BaseBuyerApi.buyer_token
-    # 没有使用多进程并发时，worker_id的值是master
-    if worker_id == "gw0" or worker_id == 'master':
-        resp = BuyerLoginApi(username='cici', password='cici321654').send()
-    # print(f"买家登录初始化: {resp.text}")
-    elif worker_id == 'gw1':
-        resp = BuyerLoginApi(username='jerry', password='jerry321654').send()
+    # 没有使用多进程并发时，worker_id的值是master\
+    # common_info = load_yaml_file(mtxshop_data_yaml)
+    # usernames = common_info['buyerName'] # ['cici', 'jerry']
+    # pwds = common_info['buyerPassword'] # ['cici321654', 'jerry321654']
+    # if worker_id == "gw0" or worker_id == 'master':
+    #     resp = BuyerLoginApi(username='cici', password='cici321654').send()
+    # # print(f"买家登录初始化: {resp.text}")
+    # elif worker_id == 'gw1':
+    #     resp = BuyerLoginApi(username='jerry', password='jerry321654').send()
+    common_info = load_yaml_file(common_yaml_path)
+    usernames = common_info['buyerName']  # ['cici', 'jerry']
+    pwds = common_info['buyerPassword']  # ['cici321654', 'jerry321654']
+    if worker_id == 'master':
+        resp = BuyerLoginApi(username=usernames[0], password=pwds[0]).send()
+    else:
+        # gw0, gw1, gw2....
+        # 提取gw后面的数字
+        index = int(worker_id[2:])
+        resp = BuyerLoginApi(username=usernames[index], password=pwds[index]).send()
+
     BaseBuyerApi.buyer_token = resp.json()['access_token']
     BaseBuyerApi.uid = resp.json()['uid']
 
@@ -63,26 +79,38 @@ def buyer_login(worker_id): # 注意worker_id是pytest-xdist提供的
 @pytest.fixture(scope="session", autouse=True)
 def manager_login():
     # 实例化管理员登录的接口类对象，完成调用，提取token，赋值给BaseManagerApi.manager_token
-    resp = ManagerLoginApi(username='admin', password='mtx_15908').send()
+    common_iofo = load_yaml_file(common_yaml_path)
+    username = common_iofo['managerName']
+    password = common_iofo['managerPassword']
+    resp = ManagerLoginApi(username=username, password=password).send()
     BaseManagerApi.manager_token = resp.json()['access_token']
 
 
 @pytest.fixture(scope='session', autouse=True)
 def seller_login():
     # 实例化卖家登录的接口类对象，完成调用，提取token，赋值给BaseSellerApi.seller_token
-    resp = SellerLoginApi(username='shamoseller', password='mtxseller').send()
+    common_info = load_yaml_file(common_yaml_path)
+    username = common_info['sellerName']
+    password = common_info['sellerPassword']
+    resp = SellerLoginApi(username=username, password=password).send()
     BaseSellerApi.seller_token = resp.json()['access_token']
 
 
 @pytest.fixture(scope='session', autouse=False)
 def redis_init():
-    r = RedisUtil(host='59.36.173.55', port=6379, pwd='mtx')
+    redis_info = load_yaml_file(redis_yaml_path)
+    host = redis_info['host']
+    password = redis_info['password']
+    port = redis_info['port']
+    r = RedisUtil(host=host, port=port, pwd=password)
     yield r
 
 
 @pytest.fixture(scope='session', autouse=False)
 def db_init():
-    db_util = DBUtil(host='59.36.173.55', user='mtxshop_test', password='mtxshamo')
+    db_info = load_yaml_file(db_yaml_path)
+
+    db_util = DBUtil(host=db_info['host'], user=db_info['username'], password=db_info['password'])
     yield db_util
     db_util.close()
 
@@ -113,7 +141,7 @@ def init_order_params(db_init):
     # 从数据库查询该买家用户名下的地址数据，如果数据库有数据，则从数据库拿到地址id
     # 如果没有则调用新增收货地址的接口，从响应中拿到地址id，传递给设置订单收货地址接口
     res_list = db_init.select(f'SELECT * FROM  mtxshop_member.es_member_address ema WHERE member_id={BaseBuyerApi.uid}')
-    if len(res_list) > 0: # 说明数据库中有数据
+    if len(res_list) > 0:  # 说明数据库中有数据
         address_id = res_list[0]['addr_id']
     else:
         # 数据库中没有数据,调用新增收货地址的接口新增收货地址

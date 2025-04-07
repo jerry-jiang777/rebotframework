@@ -1,0 +1,27 @@
+common:
+  buyerName: # 我们需要配置多个用户名,是为了适配多个进程并发时的用户隔离, 用户名必须多于或者等于进程数
+    - cici
+    - jerry
+  buyerPassword:
+    - cici321654
+    - jerry321654
+  managerName: admin
+  managerPassword: mtx_15908
+  sellerName: shamoseller
+  sellerPassword: mtxseller
+  captcha: '1512'
+  mobile_code: '908908'
+http:
+  basic: http://59.36.173.55:7002
+  buyer: http://59.36.173.55:7002
+  seller: http://59.36.173.55:7003
+  manager: http://59.36.173.55:7004
+db:
+  host: 59.36.173.55
+  username: mtxshop_test
+  password: mtxshamo
+  port: 3306
+redis:
+  host: 59.36.173.55
+  password: mtx
+  port: 6379
