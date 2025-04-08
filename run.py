@@ -35,4 +35,5 @@ if __name__ == '__main__':
     # 这个是直接打开测试报告，仅仅用于本地自己看
     os.system('allure serve report/data')
     # 这是A提交的新注释
+    # 这是A再次提交的注
     # 这是B提交的新注释
