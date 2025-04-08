@@ -15,3 +15,5 @@ common_yaml_path = f'{project_path}/config/common.yml'
 http_yaml_path = f'{project_path}/config/http.yml'
 redis_yaml_path = f'{project_path}/config/redis.yml'
 db_yaml_path = f'{project_path}/config/db.yml'
+# 这是B修改的注释
+
