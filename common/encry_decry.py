@@ -35,7 +35,7 @@ class AesEncryptECB:
 
     def pad(self, text):
         """
-        填充函数，使被加密数据的字节码长度是block_size的整数倍
+        填充函数,使被加密数据的字节码长度是block_size的整数倍
         """
         count = len(text.encode('utf-8'))
         add = self.length - (count % self.length)
@@ -69,7 +69,7 @@ class AesEncryptCBC:
 
     def pad(self, text):
         """
-        填充函数，使被加密数据的字节码长度是block_size的整数倍
+        填充函数,使被加密数据的字节码长度是block_size的整数倍
         """
         count = len(text.encode('utf-8'))
         add = self.length - (count % self.length)
